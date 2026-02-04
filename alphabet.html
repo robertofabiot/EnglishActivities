@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 14: Alphabet Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+
+        :root {
+            --primary: #6C63FF;
+            --secondary: #FF6584;
+            --bg: #f0f2f5;
+            --text: #2d3436;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #b2bec3;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        /* El contenedor de la letra */
+        .letter-box {
+            width: 200px;
+            height: 200px;
+            margin: 2rem auto;
+            background: linear-gradient(135deg, var(--primary), #8f85ff);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8rem;
+            font-weight: 900;
+            box-shadow: 0 15px 25px rgba(108, 99, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        /* Animación de "pop" cuando sale la letra */
+        .pop-anim {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        button {
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        #spinBtn {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        #spinBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.6);
+        }
+
+        #spinBtn:disabled {
+            background-color: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Timer Styles */
+        .timer-container {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text);
+            opacity: 0; /* Oculto al inicio */
+            transition: opacity 0.5s;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: #dfe6e9;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: var(--secondary);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .instructions {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #636e72;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Activity 14</h1>
+        <h2>Alphabet Challenge</h2>
+
+        <div class="letter-box" id="letterDisplay">?</div>
+
+        <div class="timer-container" id="timerBox">
+            <span id="timeText">01:00</span>
+            <div class="timer-bar">
+                <div class="timer-progress" id="timerProgress"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="spinBtn" onclick="startChallenge()">GO!</button>
+        </div>
+
+        <div class="instructions">
+            Objective: Write as many words as you can starting with the letter.
+        </div>
+    </div>
+
+    <script>
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const display = document.getElementById("letterDisplay");
+        const btn = document.getElementById("spinBtn");
+        const timerBox = document.getElementById("timerBox");
+        const timeText = document.getElementById("timeText");
+        const timerProgress = document.getElementById("timerProgress");
+        
+        let isSpinning = false;
+        let timerInterval;
+
+        function startChallenge() {
+            if (isSpinning) return;
+            isSpinning = true;
+            btn.disabled = true;
+            
+            // Reset UI
+            display.classList.remove("pop-anim");
+            timerBox.style.opacity = "0";
+            clearInterval(timerInterval);
+            timerProgress.style.width = "100%";
+            timeText.innerText = "01:00";
+
+            // Sonido visual de "ruleta"
+            let counter = 0;
+            let speed = 50;
+            
+            // Animación de ciclado de letras
+            const shuffle = setInterval(() => {
+                display.innerText = letters[Math.floor(Math.random() * letters.length)];
+                counter++;
+                
+                // Efecto de desaceleración
+                if (counter > 10) speed += 20;
+                if (counter > 20) {
+                    clearInterval(shuffle);
+                    finalizeLetter();
+                }
+            }, speed);
+        }
+
+        function finalizeLetter() {
+            // Elegir letra final real
+            const finalLetter = letters[Math.floor(Math.random() * letters.length)];
+            display.innerText = finalLetter;
+            display.classList.add("pop-anim");
+            
+            // Iniciar temporizador
+            startTimer(60); // 60 segundos
+            
+            btn.innerText = "Playing...";
+        }
+
+        function startTimer(duration) {
+            timerBox.style.opacity = "1";
+            let timeLeft = duration;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                // Actualizar texto
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timeText.innerText = `0${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                // Actualizar barra
+                let percentage = (timeLeft / duration) * 100;
+                timerProgress.style.width = percentage + "%";
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishRound();
+                }
+            }, 1000);
+        }
+
+        function finishRound() {
+            isSpinning = false;
+            btn.disabled = false;
+            btn.innerText = "Next Round";
+            timeText.innerText = "TIME'S UP!";
+            // Pequeña vibración visual (opcional)
+            document.body.style.backgroundColor = "#ffeaa7";
+            setTimeout(() => {
+                document.body.style.backgroundColor = "#f0f2f5";
+            }, 300);
+        }
+    </script>
+</body>
+</html>
