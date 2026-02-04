@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 8: Advanced Past Progressive</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden; /* Evita scroll innecesario durante animación */
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        /* Contenedor de los dados */
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            perspective: 1000px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .die-wrapper {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+
+        .die {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Caras del dado */
+        .face {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 16px;
+            border: 4px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.15);
+            backface-visibility: hidden; /* Oculta caras traseras para limpieza */
+            background-color: white; /* Fallback */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Dado 1: Past Progressive (Azul Vibrante) */
+        .die-1 .face {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        /* Dado 2: Simple Past (Rojo/Coral Vibrante) */
+        .die-2 .face {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+        }
+
+        /* Posiciones geométricas (necesarias para la ilusión 3D durante el giro) */
+        .front  { transform: rotateY(0deg) translateZ(90px); }
+        .back   { transform: rotateY(180deg) translateZ(90px); }
+        .right  { transform: rotateY(90deg) translateZ(90px); }
+        .left   { transform: rotateY(-90deg) translateZ(90px); }
+        .top    { transform: rotateX(90deg) translateZ(90px); }
+        .bottom { transform: rotateX(-90deg) translateZ(90px); }
+
+        /* Botón */
+        button {
+            padding: 15px 50px;
+            font-size: 1.3rem;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        button:hover {
+            background-color: #34495e;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(44, 62, 80, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* SECCIÓN DEL RETO (Dificultad añadida) */
+        .twist-container {
+            margin-top: 30px;
+            height: 100px; /* Altura fija para evitar saltos */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .twist-card {
+            background: white;
+            color: #333;
+            padding: 15px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #f1c40f; /* Amarillo para resaltar advertencia/reto */
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            max-width: 500px;
+        }
+
+        .twist-label {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            letter-spacing: 2px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .twist-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .dice-container { gap: 30px; }
+            .die-wrapper { width: 140px; height: 140px; }
+            .face { 
+                width: 140px; height: 140px; 
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+            .front  { transform: rotateY(0deg) translateZ(70px); }
+            .back   { transform: rotateY(180deg) translateZ(70px); }
+            .right  { transform: rotateY(90deg) translateZ(70px); }
+            .left   { transform: rotateY(-90deg) translateZ(70px); }
+            .top    { transform: rotateX(90deg) translateZ(70px); }
+            .bottom { transform: rotateX(-90deg) translateZ(70px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Storytelling Dice</h1>
+    <p class="subtitle">Oral Activity: Roll, Combine & Adapt</p>
+    
+    <div class="dice-container">
+        <div class="die-wrapper">
+            <div class="die die-1" id="die1">
+                <div class="face front">?</div>
+                <div class="face back"></div>
+                <div class="face right"></div>
+                <div class="face left"></div>
+                <div class="face top"></div>
+                <div class="face bottom"></div>
+            </div>
+        </div>
+
+        <div class="die-wrapper">
+            <div class="die die-2" id="die2">
+                <div class="face front">?</div>
+                <div class="face back"></div>
+                <div class="face right"></div>
+                <div class="face left"></div>
+                <div class="face top"></div>
+                <div class="face bottom"></div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="rollDice()">ROLL THE DICE</button>
+
+    <div class="twist-container">
+        <div class="twist-card" id="twistCard">
+            <span class="twist-label">Challenge / Twist</span>
+            <span class="twist-text" id="twistText">...</span>
+        </div>
+    </div>
+
+    <script>
+        // LISTAS DE CONTENIDO
+        const contexts = [
+            "I was sleeping", "She was texting", "They were arguing", 
+            "We were hiding", "The teacher was explaining", "You were driving",
+            "He was cooking dinner", "I was taking a shower", "The baby was crying"
+        ];
+
+        const interruptions = [
+            "the phone rang", "the power went out", "my mom screamed", 
+            "a dog bit me", "the police arrived", "it started to rain",
+            "I dropped my coffee", "someone knocked on the door", "the car broke down"
+        ];
+
+        // DIFICULTAD EXTRA: Retos para hacer pensar
+        const twists = [
+            "Make it a YES/NO Question",
+            "Make it a WH- Question (Why/Where/Who)",
+            "Make the first part NEGATIVE",
+            "Add 'Unfortunately' and continue the story",
+            "Explain WHY it happened (Because...)",
+            "Say it with an ANGRY tone",
+            "Say it with a HAPPY tone",
+            "Add a third event to the sequence",
+            "Use 'WHILE' instead of 'When'"
+        ];
+
+        const die1 = document.getElementById('die1');
+        const die2 = document.getElementById('die2');
+        const twistCard = document.getElementById('twistCard');
+        const twistText = document.getElementById('twistText');
+        const faces1 = die1.querySelectorAll('.face');
+        const faces2 = die2.querySelectorAll('.face');
+
+        let isRolling = false;
+
+        function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+
+            // Ocultar el reto durante el giro
+            twistCard.style.opacity = '0';
+            twistCard.style.transform = 'translateY(20px)';
+
+            // 1. ANIMACIÓN DE GIRO (Teatro)
+            // Rotamos los dados aleatoriamente muchas veces para que parezca que giran
+            const xRand = Math.random() * 720 + 360; 
+            const yRand = Math.random() * 720 + 360; 
+            
+            die1.style.transition = "transform 0.8s ease-in-out";
+            die2.style.transition = "transform 0.8s ease-in-out";
+            
+            // Girar a ángulos locos
+            die1.style.transform = `rotateX(${xRand}deg) rotateY(${yRand}deg)`;
+            die2.style.transform = `rotateX(-${xRand}deg) rotateY(-${yRand}deg)`;
+
+            // Seleccionar los valores finales AHORA
+            const res1 = contexts[Math.floor(Math.random() * contexts.length)];
+            const res2 = interruptions[Math.floor(Math.random() * interruptions.length)];
+            const resTwist = twists[Math.floor(Math.random() * twists.length)];
+
+            // 2. EL TRUCO DE LEGIBILIDAD
+            // Esperamos a que termine la animación (800ms)
+            setTimeout(() => {
+                // Quitamos la transición para hacer el "reset" instantáneo
+                die1.style.transition = "none";
+                die2.style.transition = "none";
+
+                // Forzamos la posición a 0,0 (Cara frontal)
+                // Esto garantiza que el texto SIEMPRE esté derecho
+                die1.style.transform = "rotateX(0deg) rotateY(0deg)";
+                die2.style.transform = "rotateX(0deg) rotateY(0deg)";
+
+                // Inyectamos el texto SOLO en la cara frontal
+                // (Podemos limpiar las otras para evitar confusión)
+                faces1.forEach(f => f.textContent = "");
+                faces2.forEach(f => f.textContent = "");
+                
+                die1.querySelector('.front').textContent = res1;
+                die2.querySelector('.front').textContent = res2;
+
+                // Mostrar el reto
+                twistText.textContent = resTwist;
+                twistCard.style.opacity = '1';
+                twistCard.style.transform = 'translateY(0)';
+
+                isRolling = false;
+            }, 800);
+        }
+
+        // Inicializar texto
+        die1.querySelector('.front').textContent = "Roll";
+        die2.querySelector('.front').textContent = "Me";
+    </script>
+</body>
+</html>
