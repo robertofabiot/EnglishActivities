@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Very vs. Too: Neon Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;500&display=swap');
+
+        :root {
+            --bg-color: #0b0c15;
+            --card-bg: #1f2029;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff9d;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%);
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Header & Progress */
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .level-text {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            transition: width 0.4s ease-out;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* Question Area */
+        .question-card {
+            background: rgba(31, 32, 41, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+        }
+
+        .context-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .sentence {
+            font-size: 1.5rem;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .blank {
+            color: var(--neon-green);
+            border-bottom: 2px solid var(--neon-green);
+            padding: 0 5px;
+            text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
+        }
+
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-choice {
+            background: transparent;
+            border: 2px solid;
+            padding: 20px;
+            border-radius: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-very {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .btn-too {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .btn-choice:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .btn-choice:active {
+            transform: scale(0.95);
+        }
+
+        /* Feedback Effects */
+        .correct-glow {
+            box-shadow: 0 0 50px var(--neon-green) !important;
+            border-color: var(--neon-green) !important;
+            color: var(--neon-green) !important;
+        }
+
+        .wrong-glow {
+            box-shadow: 0 0 50px red !important;
+            border-color: red !important;
+            color: red !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Results */
+        .result-screen {
+            display: none;
+            animation: fadeIn 1s;
+        }
+
+        .final-score {
+            font-family: 'Orbitron';
+            font-size: 4rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 30px var(--neon-green);
+            margin: 20px 0;
+        }
+
+        .restart-btn {
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-blue);
+            transition: transform 0.2s;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    
+    <div class="header" id="headerUI">
+        <div class="level-text">System Status: <span id="qCount">1/15</span></div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div id="gameplayArea">
+        <div class="question-card" id="qCard">
+            <span class="context-icon" id="qIcon">🤔</span>
+            <div class="sentence" id="qText">Loading...</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-choice btn-very" onclick="handleAnswer('Very', this)">VERY</button>
+            <button class="btn-choice btn-too" onclick="handleAnswer('Too', this)">TOO</button>
+        </div>
+    </div>
+
+    <div id="resultArea" class="result-screen">
+        <h2 class="level-text" style="font-size: 1.5rem;">MISSION COMPLETE</h2>
+        <div class="final-score" id="scoreDisplay">0%</div>
+        <p style="margin-bottom: 30px; opacity: 0.8;">Accuracy Rating</p>
+        <button class="restart-btn" onclick="location.reload()">REBOOT SYSTEM</button>
+    </div>
+
+</div>
+
+<script>
+    // Database of Questions
+    // 'type' helps determine if it's a Problem (Too) or Neutral/Positive (Very)
+    const db = [
+        { text: "This tea is ____ hot. I can't drink it yet.", answer: "Too", icon: "🔥" },
+        { text: "This tea is ____ hot. Just how I like it!", answer: "Very", icon: "😋" },
+        { text: "The box is ____ heavy. I can lift it, but be careful.", answer: "Very", icon: "💪" },
+        { text: "The box is ____ heavy. I cannot lift it at all.", answer: "Too", icon: "😫" },
+        { text: "The music is ____ loud! It hurts my ears!", answer: "Too", icon: "🔊" },
+        { text: "The music is ____ loud and energetic. Let's dance!", answer: "Very", icon: "💃" },
+        { text: "He is ____ short to reach the top shelf.", answer: "Too", icon: "📏" },
+        { text: "Antarctica is a ____ cold place.", answer: "Very", icon: "❄️" },
+        { text: "The water is ____ cold to swim. We'll freeze!", answer: "Too", icon: "🥶" },
+        { text: "She is ____ tired. She needs to sleep right now.", answer: "Too", icon: "😴" },
+        { text: "She is ____ tired, but she wants to watch a movie.", answer: "Very", icon: "🥱" },
+        { text: "The exam was ____ difficult. Everyone failed.", answer: "Too", icon: "📝" },
+        { text: "Einstein was a ____ intelligent man.", answer: "Very", icon: "🧠" },
+        { text: "My shoes are a little ____ small. They pinch my toes.", answer: "Too", icon: "👟" },
+        { text: "It is ____ late to apologize. The damage is done.", answer: "Too", icon: "🚫" }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let isAnimating = false;
+
+    // Elements
+    const qText = document.getElementById('qText');
+    const qIcon = document.getElementById('qIcon');
+    const qCount = document.getElementById('qCount');
+    const progressBar = document.getElementById('progressBar');
+    const gameplayArea = document.getElementById('gameplayArea');
+    const resultArea = document.getElementById('resultArea');
+    const headerUI = document.getElementById('headerUI');
+
+    function loadQuestion() {
+        if (currentIdx >= db.length) {
+            endGame();
+            return;
+        }
+
+        const data = db[currentIdx];
+        
+        // Update UI
+        qCount.innerText = `System Status: ${currentIdx + 1}/${db.length}`;
+        progressBar.style.width = `${(currentIdx / db.length) * 100}%`;
+        
+        // Animate Text Entry
+        qCard.style.opacity = 0;
+        qCard.style.transform = "scale(0.9)";
+        
+        setTimeout(() => {
+            qText.innerHTML = data.text.replace('____', '<span class="blank">____</span>');
+            qIcon.innerText = data.icon;
+            qCard.style.opacity = 1;
+            qCard.style.transform = "scale(1)";
+        }, 200);
+
+        isAnimating = false;
+    }
+
+    function handleAnswer(choice, btnElement) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const correctAns = db[currentIdx].answer;
+
+        if (choice === correctAns) {
+            score++;
+            btnElement.classList.add('correct-glow');
+        } else {
+            btnElement.classList.add('wrong-glow');
+            // Highlight the correct button briefly
+            const correctBtn = document.querySelector(`.btn-${correctAns.toLowerCase()}`);
+            setTimeout(() => correctBtn.classList.add('correct-glow'), 200);
+        }
+
+        // Delay for next question
+        setTimeout(() => {
+            // Reset buttons
+            document.querySelectorAll('.btn-choice').forEach(b => {
+                b.classList.remove('correct-glow', 'wrong-glow');
+            });
+            
+            currentIdx++;
+            loadQuestion();
+        }, 1200);
+    }
+
+    function endGame() {
+        gameplayArea.style.display = 'none';
+        headerUI.style.display = 'none';
+        resultArea.style.display = 'block';
+        
+        const percentage = Math.round((score / db.length) * 100);
+        document.getElementById('scoreDisplay').innerText = `${percentage}%`;
+        
+        // Dynamic message based on score
+        let msg = "";
+        if(percentage === 100) msg = "SYSTEM PERFECT";
+        else if(percentage > 70) msg = "OPTIMAL PERFORMANCE";
+        else msg = "SYSTEM ERROR: RETRY";
+        
+        document.querySelector('.level-text').innerText = msg;
+    }
+
+    // Start
+    loadQuestion();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Day Hub</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --primary-color: #4f46e5; /* Indigo tone */
+            --primary-hover: #4338ca;
+            --text-color: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px; /* Centered width for a single list */
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Space between buttons */
+        }
+
+        .activity-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Hover Effect */
+        .activity-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateX(5px); /* Slide right slightly */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        /* Arrow icon on the right */
+        .activity-link::after {
+            content: '→';
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .activity-link:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .icon {
+            margin-right: 12px;
+            font-style: normal;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Review Day Activities</h1>
+        <p class="subtitle">Choose an activity to begin today's session</p>
+    </header>
+
+    <div class="container">
+        <div class="main-card">
+            <ul class="activity-list">
+                
+                <li>
+                    <a href="review_ph9/6.6too_many_enough.html" class="activity-link">
+                        <span class="text"><span class="icon">1️⃣</span> 6.6 Too, many, enough</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="review_ph9/6.7very_too.html" class="activity-link">
+                        <span class="text"><span class="icon">2️⃣</span> 6.7 Very vs too</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="review_ph9/7.1time_words.html" class="activity-link">
+                        <span class="text"><span class="icon">3️⃣</span> 7.1 Time words</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles: Time Words Interview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #16213e;
+            --accent: #e94560;
+            --highlight: #0f3460;
+            --text: #ffffff;
+            --neon: #4cc9f0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: radial-gradient(#1f4068 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--neon);
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        /* CARD DESIGN */
+        .card-stack {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            perspective: 1000px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-origin: bottom center;
+        }
+
+        /* Elements inside card */
+        .grammar-badge {
+            background: var(--accent);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .question-text {
+            font-size: 2.2rem;
+            line-height: 1.3;
+            font-weight: 500;
+            margin-bottom: 40px;
+        }
+
+        .helper-text {
+            color: #8daabf;
+            font-size: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            width: 100%;
+        }
+
+        /* ANIMATION STATES */
+        .card.active {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .card.next {
+            transform: scale(0.95) translateY(20px);
+            opacity: 0.5;
+            z-index: 5;
+        }
+
+        .card.fly-out {
+            transform: translateY(-100vh) rotate(-10deg);
+            opacity: 0;
+        }
+
+        /* CONTROLS */
+        .btn-next {
+            background: transparent;
+            border: 2px solid var(--neon);
+            color: var(--neon);
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 40px;
+            transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .btn-next:hover {
+            background: var(--neon);
+            color: var(--bg-color);
+            box-shadow: 0 0 30px var(--neon);
+        }
+
+        /* Responsive Text */
+        @media (max-width: 600px) {
+            .question-text { font-size: 1.5rem; }
+            .card-stack { height: 350px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chronicles</h1>
+
+        <div class="card-stack" id="stack">
+            </div>
+
+        <button class="btn-next" onclick="nextCard()">Next Question &rarr;</button>
+    </div>
+
+    <script>
+        // Data based on Image 7.1 Time Words
+        // We mix personal questions with specific grammar constraints
+        const database = [
+            { 
+                word: "AGO", 
+                q: "When was the last time you cried?", 
+                hint: "Example: I cried two weeks <b>ago</b>." 
+            },
+            { 
+                word: "DURING", 
+                q: "Do you use your phone in class?", 
+                hint: "Example: No, I don't use it <b>during</b> the lesson." 
+            },
+            { 
+                word: "FOR", 
+                q: "How long have you lived in Managua?", 
+                hint: "Example: I have lived here <b>for</b> 10 years." 
+            },
+            { 
+                word: "BY", 
+                q: "What is a goal you want to finish this year?", 
+                hint: "Example: I want to learn Python <b>by</b> December." 
+            },
+            { 
+                word: "WHILE", 
+                q: "What were you doing when the teacher arrived?", 
+                hint: "Example: We were talking <b>while</b> we waited." 
+            },
+            { 
+                word: "IN", 
+                q: "When is your birthday?", 
+                hint: "Example: My birthday is <b>in</b> October." 
+            },
+            { 
+                word: "FROM ... TO", 
+                q: "What is your typical schedule on Sundays?", 
+                hint: "Example: I sleep <b>from</b> 10pm <b>to</b> 8am." 
+            },
+            { 
+                word: "ON", 
+                q: "What days do you usually study English?", 
+                hint: "Example: I study <b>on</b> Tuesdays and Thursdays." 
+            },
+            { 
+                word: "UNTIL", 
+                q: "How late do you stay awake at night?", 
+                hint: "Example: I watch TikTok <b>until</b> midnight." 
+            },
+            { 
+                word: "AFTER", 
+                q: "What will you do when you finish university?", 
+                hint: "Example: I will look for a job <b>after</b> graduation." 
+            },
+            { 
+                word: "BEFORE", 
+                q: "What do you do every morning?", 
+                hint: "Example: I brush my teeth <b>before</b> breakfast." 
+            }
+        ];
+
+        let currentIndex = 0;
+        const stack = document.getElementById('stack');
+
+        function createCard(index, status) {
+            if (index >= database.length) return null; // End of deck
+            
+            const data = database[index];
+            const card = document.createElement('div');
+            card.className = `card ${status}`;
+            card.innerHTML = `
+                <div class="grammar-badge">USE WORD: ${data.word}</div>
+                <div class="question-text">${data.q}</div>
+                <div class="helper-text">${data.hint}</div>
+            `;
+            return card;
+        }
+
+        function init() {
+            // Shuffle database slightly for randomness if desired, 
+            // but keeping order helps cover all topics.
+            // Let's create the first two cards (Active and Next)
+            stack.innerHTML = '';
+            
+            const card1 = createCard(0, 'active');
+            const card2 = createCard(1, 'next');
+            
+            if(card1) stack.appendChild(card1);
+            if(card2) stack.appendChild(card2);
+        }
+
+        function nextCard() {
+            const activeCard = document.querySelector('.card.active');
+            const nextCardEl = document.querySelector('.card.next');
+
+            if (!activeCard) return;
+
+            // Animate current card out
+            activeCard.classList.remove('active');
+            activeCard.classList.add('fly-out');
+
+            // Promote next card
+            if (nextCardEl) {
+                nextCardEl.classList.remove('next');
+                nextCardEl.classList.add('active');
+                
+                // Create a new "Next" card in background
+                currentIndex++;
+                // We need the one AFTER the one that just became active
+                // current 0 -> click -> active is now 1. We need to create 2.
+                const newNextIndex = currentIndex + 1;
+                
+                // Infinite Loop Logic: If we run out, go back to 0
+                const actualIndex = newNextIndex % database.length;
+                
+                const newCard = createCard(actualIndex, 'next');
+                if(newCard) stack.appendChild(newCard);
+
+                // Clean up old DOM element after animation
+                setTimeout(() => {
+                    activeCard.remove();
+                }, 600);
+            }
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

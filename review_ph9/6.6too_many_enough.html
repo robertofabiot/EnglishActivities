@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Too / Enough Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+        :root {
+            --primary: #6C63FF;
+            --secondary: #FF6584;
+            --success: #00D2D3;
+            --error: #FF4757;
+            --dark: #2F3542;
+            --light: #F1F2F6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Card Animation Info */
+        .exercise-card {
+            display: none; /* Hidden by default */
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .exercise-card.active {
+            display: block;
+        }
+
+        .exercise-card.exit {
+            animation: slideOut 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-50px); }
+        }
+
+        h2 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--dark);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            animation: pop 0.3s;
+        }
+
+        .option-btn.wrong {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+            opacity: 0.6;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .next-btn {
+            margin-top: 30px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none; /* Hidden until answered */
+            align-self: flex-end;
+            transition: transform 0.2s;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Score Screen */
+        .score-screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--success);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0 auto 30px;
+            box-shadow: 0 10px 30px rgba(0,210,211,0.4);
+        }
+
+        .restart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Highlight specific words in question */
+        .highlight {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="quizContainer">
+        </div>
+
+    <div id="scoreScreen" class="score-screen">
+        <div class="score-circle" id="finalScore">0/15</div>
+        <h1 style="color: var(--dark);">Great Job!</h1>
+        <p style="color: #666; margin-bottom: 30px;">You've completed the challenge.</p>
+        <button class="restart-btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "I can't drink this coffee. It's ______ hot.",
+            options: ["too", "enough", "too much", "too many"],
+            answer: "too"
+        },
+        {
+            q: "I don't have ______ money to buy the PS5.",
+            options: ["money enough", "enough", "too", "too many"],
+            answer: "enough"
+        },
+        {
+            q: "There are ______ people on this bus. I can't move!",
+            options: ["too much", "enough", "too many", "too"],
+            answer: "too many"
+        },
+        {
+            q: "She works ______. She needs to relax.",
+            options: ["too hard", "hard enough", "too much hard", "enough hard"],
+            answer: "too hard"
+        },
+        {
+            q: "I ate ______ pizza. My stomach hurts.",
+            options: ["too many", "too much", "enough", "too"],
+            answer: "too much"
+        },
+        {
+            q: "He isn't ______ to drive a car.",
+            options: ["old enough", "enough old", "too old", "old too"],
+            answer: "old enough"
+        },
+        {
+            q: "We have ______ time to finish the project. Don't worry.",
+            options: ["too much", "enough", "too", "many"],
+            answer: "enough"
+        },
+        {
+            q: "It is ______ loud in here. I can't hear you!",
+            options: ["too much", "enough", "too", "too many"],
+            answer: "too"
+        },
+        {
+            q: "You put ______ sugar in my tea. It's super sweet.",
+            options: ["too many", "too much", "enough", "too"],
+            answer: "too much"
+        },
+        {
+            q: "Did you buy ______ for the party?",
+            options: ["enough sodas", "sodas enough", "too sodas", "much sodas"],
+            answer: "enough sodas"
+        },
+        {
+            q: "The math test was ______ difficult.",
+            options: ["enough", "too much", "too many", "too"],
+            answer: "too"
+        },
+        {
+            q: "I don't feel ______ to go to school today.",
+            options: ["good enough", "enough good", "too good", "good too"],
+            answer: "good enough"
+        },
+        {
+            q: "There is ______ noise outside. I can't sleep.",
+            options: ["too many", "too much", "enough", "too"],
+            answer: "too much"
+        },
+        {
+            q: "She has ______ followers on Instagram.",
+            options: ["too much", "too many", "enough", "too"],
+            answer: "too many"
+        },
+        {
+            q: "He didn't run ______ to win the race.",
+            options: ["too fast", "fast enough", "enough fast", "fast too"],
+            answer: "fast enough"
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    const container = document.getElementById('quizContainer');
+    const progressBar = document.getElementById('progressBar');
+    const scoreScreen = document.getElementById('scoreScreen');
+
+    function loadQuestion() {
+        if (currentQ >= questions.length) {
+            showScore();
+            return;
+        }
+
+        // Update progress
+        const progress = ((currentQ) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        const qData = questions[currentQ];
+        
+        // Create Card HTML
+        const card = document.createElement('div');
+        card.className = 'exercise-card active';
+        card.innerHTML = `
+            <h2>Question ${currentQ + 1} / 15</h2>
+            <div class="question-text">${qData.q.replace('______', '<span class="highlight">______</span>')}</div>
+            <div class="options-grid">
+                ${qData.options.map(opt => `<button class="option-btn" onclick="checkAnswer(this, '${opt}', '${qData.answer}')">${opt}</button>`).join('')}
+            </div>
+            <div style="text-align: right;">
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Arrow &rarr;</button>
+            </div>
+        `;
+        
+        container.innerHTML = '';
+        container.appendChild(card);
+    }
+
+    function checkAnswer(btn, selected, correct) {
+        // Disable all buttons
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('wrong');
+            // Highlight correct one
+            buttons.forEach(b => {
+                if(b.innerText === correct) b.classList.add('correct');
+            });
+        }
+
+        document.getElementById('nextBtn').style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+        const card = document.querySelector('.exercise-card');
+        card.classList.remove('active');
+        card.classList.add('exit');
+        
+        setTimeout(() => {
+            currentQ++;
+            loadQuestion();
+        }, 400); // Wait for animation
+    }
+
+    function showScore() {
+        container.style.display = 'none';
+        scoreScreen.style.display = 'block';
+        document.getElementById('finalScore').innerText = `${score}/${questions.length}`;
+        progressBar.style.width = '100%';
+    }
+
+    // Init
+    loadQuestion();
+
+</script>
+
+</body>
+</html>
