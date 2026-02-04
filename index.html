@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Hub - English Class</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --text-color: #1e293b;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .phase-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .phase-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Colores distintivos para las fases */
+        .phase-5 .phase-title { color: #059669; border-color: #059669; }
+        .phase-9 .phase-title { color: #7c3aed; border-color: #7c3aed; }
+        .general .phase-title { color: #db2777; border-color: #db2777; }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .link-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        .activity-link {
+            display: block;
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 0.8rem;
+            border-radius: 6px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .activity-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            padding-left: 1.2rem; /* Efecto de desplazamiento */
+        }
+
+        .empty-msg {
+            color: var(--secondary-color);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>English Class Activities</h1>
+    </header>
+
+    <div class="container">
+
+        <div class="phase-card phase-5">
+            <h2 class="phase-title">Phase 5</h2>
+            <ul class="link-list">
+                <li><a href="howoften.html" class="activity-link">❓ How often...?</a></li>
+                <!-- <p class="empty-msg">No activities yet.</p> -->
+            </ul>
+        </div>
+
+        <div class="phase-card phase-9">
+            <h2 class="phase-title">Phase 9</h2>
+            <ul class="link-list">
+                <li><a href="time_dice.html" class="activity-link">🎲 Time Dice Activity</a></li>
+                
+                </ul>
+        </div>
+
+        <div class="phase-card general">
+            <h2 class="phase-title">General</h2>
+            <ul class="link-list">
+                <li><a href="parejas_rotativas.html" class="activity-link">🔄 Encounter generator</a></li>
+                
+                </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>

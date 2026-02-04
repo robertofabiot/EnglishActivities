@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 13: Truth Meter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            max-width: 900px;
+            width: 90%;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #bdc3c7;
+        }
+
+        /* Badge Styles */
+        .category-badge {
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            opacity: 0; 
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chill { 
+            background-color: #00d2ff; 
+            background-image: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white; 
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+        
+        .spicy { 
+            background-color: #ff0055; 
+            background-image: linear-gradient(90deg, #ff00cc 0%, #333399 100%);
+            color: white; 
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Question Box */
+        .question-box {
+            font-size: 3.5rem;
+            font-weight: 700;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            line-height: 1.1;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .blur-effect {
+            filter: blur(2px);
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        /* Button */
+        button {
+            background: white;
+            color: #24243e;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.4);
+        }
+
+        button:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .instruction {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="counter" id="counterDisplay">40 left</div>
+        <h1>Activity 13: Frequency Roulette</h1>
+        
+        <div id="badge" class="category-badge chill">...</div>
+
+        <div class="question-box" id="questionDisplay">
+            Ready to play?
+        </div>
+
+        <button id="btn" onclick="spinWheel()">SPIN THE WHEEL 🎰</button>
+        
+        <p class="instruction">Ask your partner: "How often do you...?"</p>
+    </div>
+
+    <script>
+        // MASTER DATABASE
+        const masterQuestions = [
+            // --- CHILL (20) ---
+            { text: "make your bed", type: "chill" },
+            { text: "drink water", type: "chill" },
+            { text: "play video games", type: "chill" },
+            { text: "help your mom in the kitchen", type: "chill" },
+            { text: "read a book (not for school)", type: "chill" },
+            { text: "eat fruit", type: "chill" },
+            { text: "brush your teeth", type: "chill" },
+            { text: "watch series on Netflix", type: "chill" },
+            { text: "go to the cinema", type: "chill" },
+            { text: "listen to music", type: "chill" },
+            { text: "study English at home", type: "chill" },
+            { text: "visit your grandparents", type: "chill" },
+            { text: "clean your room", type: "chill" },
+            { text: "take a nap in the afternoon", type: "chill" },
+            { text: "walk the dog", type: "chill" },
+            { text: "eat pizza", type: "chill" },
+            { text: "wear black clothes", type: "chill" },
+            { text: "go to church", type: "chill" },
+            { text: "play sports", type: "chill" },
+            { text: "wake up before 7 AM", type: "chill" },
+
+            // --- SPICY / TEEN (20) ---
+            { text: "lie to your parents", type: "spicy" },
+            { text: "delete WhatsApp messages", type: "spicy" },
+            { text: "stalk your crush online", type: "spicy" },
+            { text: "cheat on an exam", type: "spicy" },
+            { text: "use ChatGPT for homework", type: "spicy" },
+            { text: "skip class", type: "spicy" },
+            { text: "fight with your siblings", type: "spicy" },
+            { text: "take selfies", type: "spicy" },
+            { text: "cry watching a movie", type: "spicy" },
+            { text: "sleep in class", type: "spicy" },
+            { text: "ignore phone calls", type: "spicy" },
+            { text: "pretend to be sick", type: "spicy" },
+            { text: "sing in the shower (loudly)", type: "spicy" },
+            { text: "eat junk food in bed", type: "spicy" },
+            { text: "talk to yourself", type: "spicy" },
+            { text: "copy your friend's homework", type: "spicy" },
+            { text: "forget to use deodorant", type: "spicy" },
+            { text: "block someone on Instagram", type: "spicy" },
+            { text: "ghost someone", type: "spicy" },
+            { text: "check your ex's profile", type: "spicy" }
+        ];
+
+        // State variables
+        let availableQuestions = [...masterQuestions];
+        const display = document.getElementById("questionDisplay");
+        const badge = document.getElementById("badge");
+        const btn = document.getElementById("btn");
+        const counterDisplay = document.getElementById("counterDisplay");
+
+        function updateCounter() {
+            counterDisplay.innerText = availableQuestions.length + " cards left";
+        }
+
+        function spinWheel() {
+            // Check if empty
+            if (availableQuestions.length === 0) {
+                // Refill deck
+                availableQuestions = [...masterQuestions];
+                alert("All questions used! Reshuffling deck...");
+            }
+
+            // Disable button during spin
+            btn.disabled = true;
+            btn.innerText = "SPINNING...";
+            badge.style.opacity = "0";
+            display.classList.add("blur-effect");
+
+            let iterations = 0;
+            let speed = 50; // Start fast
+            const totalIterations = 25; // How many spins
+
+            // Sound effect logic (optional simulation via visual rhythm)
+            
+            function step() {
+                // Show a random temporary question just for visual noise
+                const tempIndex = Math.floor(Math.random() * masterQuestions.length);
+                display.innerText = masterQuestions[tempIndex].text;
+                
+                // Color flashing logic
+                display.style.color = iterations % 2 === 0 ? "#aaa" : "#fff";
+
+                iterations++;
+
+                if (iterations < totalIterations) {
+                    // Slow down gradually
+                    if (iterations > totalIterations - 10) speed += 30;
+                    if (iterations > totalIterations - 5) speed += 60;
+                    setTimeout(step, speed);
+                } else {
+                    // FINISHED SPINNING -> SELECT REAL QUESTION
+                    finalizeSelection();
+                }
+            }
+
+            step();
+        }
+
+        function finalizeSelection() {
+            // 1. Pick random from AVAILABLE
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const selected = availableQuestions[randomIndex];
+
+            // 2. Remove from available (No Repeats!)
+            availableQuestions.splice(randomIndex, 1);
+            updateCounter();
+
+            // 3. Display
+            display.classList.remove("blur-effect");
+            display.style.color = "white";
+            display.innerText = selected.text; // Show text without "..." for cleaner look
+
+            // 4. Update Badge
+            badge.style.opacity = "1";
+            if (selected.type === "spicy") {
+                badge.innerText = "🔥 SPICY 🔥";
+                badge.className = "category-badge spicy";
+                // Optional: Change background slightly
+            } else {
+                badge.innerText = "🧊 CHILL 🧊";
+                badge.className = "category-badge chill";
+            }
+
+            // 5. Re-enable button
+            btn.disabled = false;
+            btn.innerText = "NEXT QUESTION 🎲";
+        }
+
+        // Init
+        updateCounter();
+    </script>
+
+</body>
+</html>

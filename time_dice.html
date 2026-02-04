@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Word Dice - Activity 5</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #818cf8;
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        p.instruction {
+            color: #6b7280;
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+        }
+
+        /* Escena 3D para el dado */
+        .scene {
+            width: 200px;
+            height: 200px;
+            perspective: 600px;
+            margin-bottom: 50px;
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: translateZ(-100px);
+            transition: transform 1s;
+        }
+
+        .cube.is-spinning {
+            animation: spinCube 0.8s infinite linear;
+        }
+
+        .cube__face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 2px solid var(--primary);
+            line-height: 200px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            background: rgba(99, 102, 241, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            display: flex; /* Flex para centrar texto multilínea */
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            word-wrap: break-word;
+        }
+
+        /* Posicionamiento de las caras del cubo (simplificado para efecto visual) */
+        .cube__face--front  { transform: rotateY(  0deg) translateZ(100px); }
+        .cube__face--right  { transform: rotateY( 90deg) translateZ(100px); background: rgba(79, 70, 229, 0.95); }
+        .cube__face--back   { transform: rotateY(180deg) translateZ(100px); }
+        .cube__face--left   { transform: rotateY(-90deg) translateZ(100px); background: rgba(79, 70, 229, 0.95); }
+        .cube__face--top    { transform: rotateX( 90deg) translateZ(100px); background: rgba(129, 140, 248, 0.95); }
+        .cube__face--bottom { transform: rotateX(-90deg) translateZ(100px); background: rgba(129, 140, 248, 0.95); }
+
+        /* Botón de acción */
+        button {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Animación de rotación */
+        @keyframes spinCube {
+            0% { transform: translateZ(-100px) rotateX(0deg) rotateY(0deg); }
+            100% { transform: translateZ(-100px) rotateX(360deg) rotateY(360deg); }
+        }
+
+        /* Ajuste para texto largo */
+        .long-text {
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Time Word Dice</h1>
+    <p class="instruction">Haz clic para obtener tu palabra y crea una oración.</p>
+
+    <div class="scene">
+        <div class="cube" id="cube">
+            <div class="cube__face cube__face--front">?</div>
+            <div class="cube__face cube__face--back">?</div>
+            <div class="cube__face cube__face--right">?</div>
+            <div class="cube__face cube__face--left">?</div>
+            <div class="cube__face cube__face--top">?</div>
+            <div class="cube__face cube__face--bottom">?</div>
+        </div>
+    </div>
+
+    <button id="rollBtn" onclick="rollDice()">Roll Dice!</button>
+
+    <script>
+        // Lista de palabras proporcionada
+        const timeWords = [
+            "on", 
+            "in", 
+            "after", 
+            "while", 
+            "during", 
+            "for", 
+            "by", 
+            "from... to/until", 
+            "when", 
+            "before", 
+            "ago"
+        ];
+
+        const cube = document.getElementById('cube');
+        const rollBtn = document.getElementById('rollBtn');
+        const faces = document.querySelectorAll('.cube__face');
+        let isRolling = false;
+
+        function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+            rollBtn.disabled = true;
+            rollBtn.textContent = "Rolling...";
+
+            // 1. Iniciar animación de giro
+            cube.classList.add('is-spinning');
+
+            // 2. Efecto de cambio rápido de palabras mientras gira
+            const interval = setInterval(() => {
+                const randomFace = Math.floor(Math.random() * 6);
+                const randomWord = timeWords[Math.floor(Math.random() * timeWords.length)];
+                updateFaceText(faces[randomFace], randomWord);
+            }, 100);
+
+            // 3. Detener después de un tiempo aleatorio (entre 1s y 2s)
+            setTimeout(() => {
+                clearInterval(interval);
+                cube.classList.remove('is-spinning');
+                
+                // Selección final
+                const finalWord = timeWords[Math.floor(Math.random() * timeWords.length)];
+                
+                // Generar una rotación aleatoria final para que caiga en una cara "visible"
+                // Simplificamos forzando siempre la cara frontal para legibilidad máxima
+                cube.style.transform = `translateZ(-100px) rotateX(0deg) rotateY(0deg)`;
+                
+                // Actualizar la cara frontal con la palabra ganadora
+                const frontFace = document.querySelector('.cube__face--front');
+                updateFaceText(frontFace, finalWord);
+
+                // Efecto visual de "pop"
+                frontFace.style.backgroundColor = "#4f46e5";
+                setTimeout(() => frontFace.style.backgroundColor = "rgba(99, 102, 241, 0.95)", 300);
+
+                isRolling = false;
+                rollBtn.disabled = false;
+                rollBtn.textContent = "Roll Again";
+            }, 1500);
+        }
+
+        function updateFaceText(element, text) {
+            element.textContent = text;
+            if (text.length > 8) {
+                element.classList.add('long-text');
+            } else {
+                element.classList.remove('long-text');
+            }
+        }
+    </script>
+</body>
+</html>

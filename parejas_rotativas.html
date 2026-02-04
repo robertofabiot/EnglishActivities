@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotative Pairs Generator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: var(--glass);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header { text-align: center; margin-bottom: 10px; }
+        h1 { font-size: 2rem; font-weight: 800; color: #3730a3; margin-bottom: 8px; letter-spacing: -0.5px; }
+        p.subtitle { color: var(--text-light); font-size: 1rem; }
+
+        /* Input Area */
+        .input-group {
+            display: flex;
+            gap: 12px;
+            background: #fff;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 12px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+            padding: 12px 24px;
+        }
+
+        .btn-add { background: var(--primary); color: white; }
+        .btn-add:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        
+        .btn-generate {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            margin-top: 10px;
+        }
+        .btn-generate:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        /* Name List Tags */
+        .name-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 50px;
+        }
+
+        .tag {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tag button {
+            background: none;
+            color: #4338ca;
+            padding: 0;
+            font-size: 1.2rem;
+            line-height: 1;
+            opacity: 0.6;
+        }
+        .tag button:hover { opacity: 1; background: none; transform: none; }
+
+        /* Results Area */
+        #results-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .round-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .round-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 8px;
+        }
+
+        .pair-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .pair-item:last-child { border-bottom: none; }
+        
+        .vs-badge {
+            background: #f3f4f6;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .bye-badge {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.5rem; }
+            .btn-generate { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Encounter generator</h1>
+            <p class="subtitle">Round Robin Algorithm: everyone-vs-everyone competition, no repetitions.</p>
+        </header>
+
+        <div>
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="Write a name and press Enter..." autocomplete="off">
+                <button class="btn-add" onclick="addName()">Add</button>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.85rem; color: #6b7280; text-align: right;">
+                Total: <span id="count">0</span> people
+            </div>
+        </div>
+
+        <div class="name-list" id="nameList">
+            </div>
+
+        <button class="btn-generate" onclick="generateSchedule()">Round generator</button>
+
+        <div id="results-area"></div>
+    </div>
+
+    <script>
+        let names = [];
+        const input = document.getElementById('nameInput');
+        const listContainer = document.getElementById('nameList');
+        const countSpan = document.getElementById('count');
+        const resultsArea = document.getElementById('results-area');
+
+        // Permitir Enter para agregar
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addName();
+        });
+
+        function addName() {
+            const val = input.value.trim();
+            if (val && !names.includes(val)) {
+                names.push(val);
+                renderTags();
+                input.value = '';
+                input.focus();
+            } else if (names.includes(val)) {
+                alert("Name already on the list");
+            }
+        }
+
+        function removeName(index) {
+            names.splice(index, 1);
+            renderTags();
+        }
+
+        function renderTags() {
+            listContainer.innerHTML = '';
+            names.forEach((name, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.innerHTML = `
+                    ${name}
+                    <button onclick="removeName(${index})">&times;</button>
+                `;
+                listContainer.appendChild(tag);
+            });
+            countSpan.innerText = names.length;
+        }
+
+        function generateSchedule() {
+            if (names.length < 2) {
+                alert("You need at least 2 people");
+                return;
+            }
+
+            resultsArea.innerHTML = '';
+            
+            // Copia del array para no modificar el original de la vista
+            let pool = [...names];
+
+            // Si es impar, agregamos el fantasma
+            if (pool.length % 2 !== 0) {
+                pool.push("Break");
+            }
+
+            const totalPlayers = pool.length;
+            const rounds = totalPlayers - 1;
+            const half = totalPlayers / 2;
+
+            // Animación escalonada
+            let delay = 0;
+
+            for (let r = 0; r < rounds; r++) {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'round-card';
+                roundDiv.style.animationDelay = `${delay}s`;
+                
+                let html = `<div class="round-title">Ronda ${r + 1}</div>`;
+
+                for (let i = 0; i < half; i++) {
+                    let p1 = pool[i];
+                    let p2 = pool[totalPlayers - 1 - i];
+
+                    html += `<div class="pair-item">`;
+                    
+                    // Lógica visual para "Descanso"
+                    if (p1.includes("Break")) {
+                        html += `<span>${p2}</span> <span class="bye-badge">Free</span>`;
+                    } else if (p2.includes("Break")) {
+                        html += `<span>${p1}</span> <span class="bye-badge">Free</span>`;
+                    } else {
+                        html += `<span style="font-weight:500">${p1}</span> 
+                                 <span class="vs-badge">VS</span> 
+                                 <span style="font-weight:500">${p2}</span>`;
+                    }
+                    html += `</div>`;
+                }
+
+                roundDiv.innerHTML = html;
+                resultsArea.appendChild(roundDiv);
+
+                // Rotación del algoritmo (Mantener index 0 fijo, rotar el resto)
+                // Array: [0, 1, 2, 3] -> [0] + [3] + [1, 2]
+                pool = [pool[0], pool[pool.length - 1], ...pool.slice(1, pool.length - 1)];
+                
+                delay += 0.1; // Aumentar delay para efecto cascada
+            }
+        }
+    </script>
+</body>
+</html>
