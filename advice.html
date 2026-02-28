@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give Me Advice!</title>
+    <style>
+        :root {
+            --primary-color: #e63946;
+            --bg-color: #f1faee;
+            --card-bg: #ffffff;
+            --text-color: #1d3557;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            max-width: 900px;
+            width: 100%;
+            padding: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 3.5em;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            font-size: 1.8em;
+            color: #457b9d;
+            margin-bottom: 40px;
+        }
+
+        .problem-box {
+            background-color: #fff3cd;
+            border-left: 10px solid #ffb703;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .problem-text {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #d4a373;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        button {
+            background-color: #457b9d;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.8em;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            background-color: #1d3557;
+            transform: translateY(-3px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .counter {
+            margin-top: 30px;
+            font-size: 1.5em;
+            color: #666;
+        }
+
+        .modal-highlight {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Give Me Advice!</h1>
+        <p class="instructions">Use <span class="modal-highlight">should</span> or <span class="modal-highlight">ought to</span> to help with this problem:</p>
+
+        <div class="problem-box">
+            <p class="problem-text" id="problemDisplay">Click "Next Problem" to start the activity!</p>
+        </div>
+
+        <button id="actionBtn" onclick="nextProblem()">Next Problem</button>
+        
+        <p class="counter" id="counterDisplay"></p>
+    </div>
+
+    <script>
+        // Lista maestra de problemas
+        const allProblems = [
+            "My cat is being fat-shamed by the neighborhood dogs.",
+            "My husband snores so loudly the neighbors complained.",
+            "I accidentally dyed my hair neon green right before a job interview.",
+            "My parrot learned to swear and won't stop insulting my guests.",
+            "I think my microwave is secretly judging my food choices.",
+            "My shoes squeak, but only when I'm trying to sneak into the kitchen at night.",
+            "I accidentally liked a photo my ex posted 6 years ago.",
+            "A raccoon keeps stealing my newspaper and leaving me a shiny rock in exchange.",
+            "I forgot how to spell my own name during an important test.",
+            "My dog refuses to walk unless I carry him like a baby."
+        ];
+
+        // Lista de trabajo (se irá vaciando)
+        let availableProblems = [];
+
+        // Elementos del DOM
+        const displayEl = document.getElementById('problemDisplay');
+        const btnEl = document.getElementById('actionBtn');
+        const counterEl = document.getElementById('counterDisplay');
+
+        // Inicializar la actividad
+        function initActivity() {
+            availableProblems = [...allProblems]; // Copia la lista maestra
+            displayEl.textContent = "Are you ready?";
+            displayEl.style.color = "#d4a373";
+            btnEl.textContent = "Start Activity";
+            btnEl.onclick = nextProblem;
+            updateCounter();
+        }
+
+        // Mostrar el siguiente problema sin repetir
+        function nextProblem() {
+            if (availableProblems.length === 0) {
+                // Se acabaron los problemas
+                displayEl.textContent = "🎉 That's all! Great job, class! 🎉";
+                displayEl.style.color = "#2a9d8f";
+                btnEl.textContent = "Restart Activity";
+                btnEl.onclick = initActivity;
+                counterEl.textContent = "";
+                return;
+            }
+
+            // Seleccionar uno al azar
+            const randomIndex = Math.floor(Math.random() * availableProblems.length);
+            const selectedProblem = availableProblems[randomIndex];
+            
+            // Mostrar en pantalla
+            displayEl.textContent = `"${selectedProblem}"`;
+            displayEl.style.color = "#e76f51";
+            btnEl.textContent = "Next Problem";
+
+            // Eliminar de la lista para que no se repita
+            availableProblems.splice(randomIndex, 1);
+            
+            updateCounter();
+        }
+
+        // Actualizar el texto que muestra cuántos faltan
+        function updateCounter() {
+            if (availableProblems.length > 0) {
+                counterEl.textContent = `Problems left: ${availableProblems.length}`;
+            }
+        }
+
+        // Preparar todo al cargar la página
+        window.onload = initActivity;
+    </script>
+
+</body>
+</html>
