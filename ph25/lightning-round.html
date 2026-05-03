@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightning Round</title>
+    <style>
+        /* Modern Gradient Background */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Glassmorphism Card Effect */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            position: relative;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #f1c40f;
+        }
+
+        /* Counter Styling */
+        #counter {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        #question-display {
+            font-size: 2rem;
+            font-weight: 600;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Interactive Button */
+        button {
+            background-color: #f1c40f;
+            color: #1e3c72;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            background-color: #f39c12;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Finished state styling */
+        .finished-text {
+            color: #2ecc71;
+            font-size: 2.5rem !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>⚡ Lightning Round ⚡</h1>
+        <div id="counter">Ready to start!</div>
+        <div id="question-display">Click the button below to start!</div>
+        <button id="action-btn" onclick="nextQuestion()">Draw a Question</button>
+    </div>
+
+    <script>
+        // La lista original de preguntas
+        const allQuestions = [
+            "If I won the lottery I would...",
+            "If there was a zombie apocalypse we would...",
+            "If I had 1 million dollars I could...",
+            "If she had a fast car she could...",
+            "If I needed to borrow money I would...",
+            "If I had 3 wishes I would...",
+            "If I had unlimited food I would...",
+            "If I could fly anywhere in the world I could...",
+            "If I knew how to speak all languages I could...",
+            "If we had a fairy godmother we could...",
+            "If I were an animal, I would...",
+            "If I could commit a crime and get away with it I would...",
+            "If I could choose either money or health I would...",
+            "If I could go back in time I would...",
+            "If I could change 1 thing about the present I would...",
+            "If I lived by the beach I would..."
+        ];
+
+        // Variables para llevar el control del juego
+        let availableQuestions = [...allQuestions]; // Copia de las preguntas disponibles
+        let questionsAsked = 0;
+        const totalQuestions = allQuestions.length;
+
+        function nextQuestion() {
+            const display = document.getElementById('question-display');
+            const counter = document.getElementById('counter');
+            const btn = document.getElementById('action-btn');
+
+            // Quitar clase de finalizado por si acaso (al reiniciar)
+            display.classList.remove('finished-text');
+
+            // Si ya no quedan preguntas
+            if (availableQuestions.length === 0) {
+                display.innerText = "Round Finished! 🎉";
+                display.classList.add('finished-text');
+                counter.innerText = "All questions asked!";
+                btn.innerText = "Restart Round";
+                btn.onclick = resetGame;
+                return;
+            }
+
+            // Elegir un índice aleatorio de las preguntas que SOBRAN
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            
+            // Extraer la pregunta (splice la remueve del array para que no se repita)
+            const selectedQuestion = availableQuestions.splice(randomIndex, 1)[0];
+            
+            // Actualizar contadores
+            questionsAsked++;
+            
+            // Mostrar la pregunta y actualizar el contador
+            display.innerText = selectedQuestion;
+            counter.innerText = `Question ${questionsAsked} of ${totalQuestions}`;
+        }
+
+        // Función para reiniciar el juego
+        function resetGame() {
+            availableQuestions = [...allQuestions];
+            questionsAsked = 0;
+            
+            const btn = document.getElementById('action-btn');
+            btn.innerText = "Draw a Question";
+            btn.onclick = nextQuestion;
+            
+            // Sacar la primera pregunta automáticamente al reiniciar
+            nextQuestion();
+        }
+    </script>
+
+</body>
+</html>
