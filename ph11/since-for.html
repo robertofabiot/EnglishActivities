@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Since or For: Battle Royale</title>
+    <style>
+        :root {
+            --since-color: #3498db;
+            --for-color: #9b59b6;
+            --trap-color: #e74c3c;
+            --turbo-color: #2ecc71;
+            --challenge-color: #f1c40f;
+            --text-dark: #2c3e50;
+            --board-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Background Animation */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+            font-size: 2.5em;
+        }
+
+        .instructions {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        #game-container {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* 3D Control Panel */
+        #control-panel {
+            flex: 1;
+            background: var(--board-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .team-indicator {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-since { background-color: var(--since-color); }
+        .team-for { background-color: var(--for-color); }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #validation-area {
+            animation: popIn 0.3s ease-out forwards;
+        }
+
+        /* 3D Buttons */
+        .btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: all 0.1s;
+            position: relative;
+            top: 0;
+            text-transform: uppercase;
+        }
+
+        .btn:active { 
+            top: 4px;
+            box-shadow: 0 0 0 rgba(0,0,0,0.2) !important;
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; top: 4px; box-shadow: none !important;}
+
+        .btn-correct { 
+            background-color: #2ecc71; 
+            box-shadow: 0 5px 0 #27ae60, 0 8px 5px rgba(0,0,0,0.2);
+            margin-right: 10px;
+        }
+        .btn-incorrect { 
+            background-color: #e74c3c; 
+            box-shadow: 0 5px 0 #c0392b, 0 8px 5px rgba(0,0,0,0.2);
+        }
+        .btn-roll { 
+            background-color: #f39c12; 
+            font-size: 1.5em; 
+            padding: 15px; 
+            display: none;
+            box-shadow: 0 6px 0 #d35400, 0 10px 10px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+        .btn-reset { 
+            background-color: #7f8c8d; 
+            margin-top: auto; 
+            box-shadow: 0 4px 0 #2c3e50;
+        }
+
+        #dice-result {
+            font-size: 4em;
+            font-weight: 900;
+            color: #2c3e50;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 0px #bdc3c7;
+        }
+
+        #action-log {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #34495e;
+            min-height: 80px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 3D Board & Spaces */
+        #board-panel {
+            flex: 2;
+            background: var(--board-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        .space {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
+            border: 2px solid #fff;
+            box-shadow: 0 6px 0 #bdc3c7, 0 8px 10px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #95a5a6;
+            font-size: 1.5em;
+            transition: transform 0.2s;
+        }
+
+        @keyframes pulseSpace {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .space.start { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; box-shadow: 0 6px 0 #1a252f; font-size: 1.2em; }
+        .space.finish { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; box-shadow: 0 6px 0 #d35400; font-size: 1em; text-align: center; }
+        
+        .space.trap { background: linear-gradient(135deg, #fadbd8, #f1948a); box-shadow: 0 6px 0 #e74c3c; color: #c0392b; animation: pulseSpace 2s infinite; }
+        .space.trap::after { content: "TRAP -2"; font-size: 0.4em; position: absolute; bottom: 8px; font-weight: bold; }
+        
+        .space.turbo { background: linear-gradient(135deg, #d5f5e3, #82e0aa); box-shadow: 0 6px 0 #2ecc71; color: #27ae60; animation: pulseSpace 2s infinite 0.5s; }
+        .space.turbo::after { content: "TURBO +2"; font-size: 0.4em; position: absolute; bottom: 8px; font-weight: bold; }
+        
+        .space.challenge { background: linear-gradient(135deg, #fcf3cf, #f7dc6f); box-shadow: 0 6px 0 #f39c12; color: #d4ac0d; animation: pulseSpace 2s infinite 1s; }
+        .space.challenge::after { content: "CHALLENGE"; font-size: 0.35em; position: absolute; bottom: 8px; font-weight: bold; }
+
+        /* Tokens - Floating 3D Spheres */
+        .token-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .token {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            animation: float 2s ease-in-out infinite;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            position: relative;
+        }
+
+        /* 3D Volume for Spheres */
+        .token.since { 
+            background: radial-gradient(circle at 30% 30%, #a9cce3, var(--since-color) 60%, #154360 100%);
+            box-shadow: 0 10px 10px rgba(0,0,0,0.3);
+        }
+        .token.for { 
+            background: radial-gradient(circle at 30% 30%, #d7bde2, var(--for-color) 60%, #512e5f 100%);
+            box-shadow: 0 10px 10px rgba(0,0,0,0.3);
+            animation-delay: 1s;
+        }
+
+        /* Shadow under tokens */
+        .token::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 5px;
+            width: 18px;
+            height: 6px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend span { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 18px; height: 18px; border-radius: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+
+    </style>
+</head>
+<body>
+
+    <h1>Since or For: Battle Royale</h1>
+    <div class="instructions">Teacher: Listen to the team's sentence. Click Correct to let them roll, or Incorrect to skip their turn!</div>
+
+    <div id="game-container">
+        <!-- Controls -->
+        <div id="control-panel">
+            <div id="turn-indicator" class="team-indicator team-since">
+                Team SINCE's Turn
+            </div>
+            
+            <div id="validation-area">
+                <p>Did they make a correct sentence?</p>
+                <div>
+                    <button class="btn btn-correct" onclick="judgeSentence(true)" id="btn-correct">Correct</button>
+                    <button class="btn btn-incorrect" onclick="judgeSentence(false)" id="btn-incorrect">Incorrect</button>
+                </div>
+            </div>
+
+            <button id="btn-roll" class="btn btn-roll" onclick="startRollAnimation()">ROLL DICE!</button>
+
+            <div id="dice-result">-</div>
+            
+            <div id="action-log">Game Started! Team SINCE goes first.</div>
+
+            <button class="btn btn-reset" onclick="resetGame()">Restart Game</button>
+        </div>
+
+        <!-- Board -->
+        <div id="board-panel">
+            <div class="board" id="board">
+                <!-- Spaces generated by JS -->
+            </div>
+            <div class="legend">
+                <span><div class="legend-color" style="background: var(--trap-color)"></div> Trap (Go back 2)</span>
+                <span><div class="legend-color" style="background: var(--turbo-color)"></div> Turbo (Go forward 2)</span>
+                <span><div class="legend-color" style="background: var(--challenge-color)"></div> Challenge (New sentence)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_SPACES = 24;
+        
+        const specialSpaces = {
+            3: 'turbo',
+            6: 'trap',
+            9: 'challenge',
+            13: 'turbo',
+            17: 'trap',
+            21: 'challenge'
+        };
+
+        let currentTeam = 'since';
+        let positions = { since: 0, for: 0 };
+        let isChallengeActive = false;
+        let isMoving = false; // Lock controls while moving
+
+        // Utility function to create a delay for step-by-step movement
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        function initBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            for (let i = 0; i <= TOTAL_SPACES; i++) {
+                const space = document.createElement('div');
+                space.className = `space ${specialSpaces[i] || ''}`;
+                space.id = `space-${i}`;
+                
+                if (i === 0) space.classList.add('start');
+                if (i === TOTAL_SPACES) space.classList.add('finish');
+                
+                space.innerHTML = i === 0 ? 'START' : i === TOTAL_SPACES ? 'TREASURE' : i;
+                
+                const tokenContainer = document.createElement('div');
+                tokenContainer.className = 'token-container';
+                tokenContainer.id = `tokens-${i}`;
+                space.appendChild(tokenContainer);
+
+                board.appendChild(space);
+            }
+            updateTokens();
+        }
+
+        function updateTokens() {
+            document.querySelectorAll('.token-container').forEach(c => c.innerHTML = '');
+            
+            const sinceToken = document.createElement('div');
+            sinceToken.className = 'token since';
+            document.getElementById(`tokens-${positions.since}`).appendChild(sinceToken);
+
+            const forToken = document.createElement('div');
+            forToken.className = 'token for';
+            document.getElementById(`tokens-${positions.for}`).appendChild(forToken);
+        }
+
+        async function judgeSentence(isCorrect) {
+            if (isMoving) return;
+
+            const log = document.getElementById('action-log');
+            const validationArea = document.getElementById('validation-area');
+            const rollBtn = document.getElementById('btn-roll');
+
+            if (isCorrect) {
+                if (isChallengeActive) {
+                    log.innerHTML = `CHALLENGE SUCCESSFUL!<br>Team ${currentTeam.toUpperCase()} stays safe.`;
+                    isChallengeActive = false;
+                    setTimeout(endTurn, 1500);
+                } else {
+                    log.innerHTML = "CORRECT!<br>Time to roll the dice.";
+                    validationArea.style.display = 'none';
+                    rollBtn.style.display = 'inline-block';
+                }
+            } else {
+                if (isChallengeActive) {
+                    log.innerHTML = `CHALLENGE FAILED!<br>Team ${currentTeam.toUpperCase()} goes back 1 space.`;
+                    isChallengeActive = false;
+                    await movePlayerStepByStep(currentTeam, -1);
+                } else {
+                    log.innerHTML = "INCORRECT.<br>Turn passes to the next team.";
+                    setTimeout(endTurn, 2000);
+                }
+            }
+        }
+
+        function startRollAnimation() {
+            if (isMoving) return;
+            isMoving = true;
+            
+            document.getElementById('btn-roll').style.display = 'none';
+            const diceElement = document.getElementById('dice-result');
+            const logElement = document.getElementById('action-log');
+            
+            logElement.innerText = "Rolling...";
+            
+            let rollCount = 0;
+            const maxRolls = 15;
+            const finalRoll = Math.floor(Math.random() * 6) + 1;
+
+            const rollInterval = setInterval(() => {
+                diceElement.innerText = Math.floor(Math.random() * 6) + 1;
+                rollCount++;
+
+                if (rollCount >= maxRolls) {
+                    clearInterval(rollInterval);
+                    diceElement.innerText = finalRoll;
+                    logElement.innerText = `Team ${currentTeam.toUpperCase()} rolled a ${finalRoll}!`;
+                    
+                    setTimeout(() => {
+                        movePlayerStepByStep(currentTeam, finalRoll);
+                    }, 800);
+                }
+            }, 60); 
+        }
+
+        // NEW: Step-by-step movement logic
+        async function movePlayerStepByStep(team, amount) {
+            isMoving = true;
+            let steps = Math.abs(amount);
+            let direction = amount > 0 ? 1 : -1; // 1 for forward, -1 for backward
+
+            for (let i = 0; i < steps; i++) {
+                let nextPos = positions[team] + direction;
+                
+                // Keep within board limits
+                if (nextPos < 0) nextPos = 0;
+                if (nextPos > TOTAL_SPACES) nextPos = TOTAL_SPACES;
+
+                if (positions[team] === nextPos) break; // Reached bounds
+
+                positions[team] = nextPos;
+                updateTokens();
+                
+                // Wait 400ms before taking the next step
+                await delay(400); 
+            }
+
+            // Check if reached the end
+            if (positions[team] === TOTAL_SPACES) {
+                document.getElementById('action-log').innerHTML = `VICTORY!<br>TEAM ${team.toUpperCase()} WINS THE TREASURE!`;
+                document.getElementById('validation-area').style.display = 'none';
+                isMoving = false;
+                return;
+            }
+
+            // After moving, check if they landed on a special space
+            await checkSpecialSpace(team, positions[team]);
+        }
+
+        async function checkSpecialSpace(team, pos) {
+            const type = specialSpaces[pos];
+            const log = document.getElementById('action-log');
+
+            if (type === 'turbo') {
+                log.innerHTML = "TURBO!<br>Moving forward 2 spaces!";
+                await delay(1000);
+                await movePlayerStepByStep(team, 2);
+            } else if (type === 'trap') {
+                log.innerHTML = "TRAP!<br>Go back 2 spaces.";
+                await delay(1000);
+                await movePlayerStepByStep(team, -2);
+            } else if (type === 'challenge') {
+                log.innerHTML = "CHALLENGE!<br>Another student must make a new sentence IMMEDIATELY!";
+                isChallengeActive = true;
+                isMoving = false; // Unlock for the teacher to grade
+                
+                const validationArea = document.getElementById('validation-area');
+                validationArea.style.display = 'block';
+                validationArea.style.animation = 'none';
+                validationArea.offsetHeight; /* Trigger reflow */
+                validationArea.style.animation = null;
+                
+                document.getElementById('dice-result').innerText = '-';
+            } else {
+                await delay(1000);
+                endTurn();
+            }
+        }
+
+        function endTurn() {
+            if (positions.since >= TOTAL_SPACES || positions.for >= TOTAL_SPACES) return;
+
+            currentTeam = currentTeam === 'since' ? 'for' : 'since';
+            
+            const indicator = document.getElementById('turn-indicator');
+            indicator.className = `team-indicator team-${currentTeam}`;
+            indicator.innerText = `Team ${currentTeam.toUpperCase()}'s Turn`;
+
+            const validationArea = document.getElementById('validation-area');
+            validationArea.style.display = 'block';
+            validationArea.style.animation = 'none';
+            validationArea.offsetHeight; /* Trigger reflow to restart animation */
+            validationArea.style.animation = null;
+
+            document.getElementById('btn-roll').style.display = 'none';
+            document.getElementById('dice-result').innerText = '-';
+            document.getElementById('action-log').innerText = "Waiting for sentence...";
+            
+            isMoving = false; // Unlock for the next team
+        }
+
+        function resetGame() {
+            positions = { since: 0, for: 0 };
+            currentTeam = 'since';
+            isChallengeActive = false;
+            isMoving = false;
+            
+            const indicator = document.getElementById('turn-indicator');
+            indicator.className = `team-indicator team-since`;
+            indicator.innerText = `Team SINCE's Turn`;
+
+            document.getElementById('validation-area').style.display = 'block';
+            document.getElementById('btn-roll').style.display = 'none';
+            document.getElementById('dice-result').innerText = '-';
+            document.getElementById('action-log').innerText = "Game Started! Team SINCE goes first.";
+            
+            updateTokens();
+        }
+
+        // Initialize game
+        initBoard();
+    </script>
+</body>
+</html>
