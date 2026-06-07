@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica de Examen de Inglés</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222222;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #quiz-container {
+            background-color: #333333;
+            border-radius: 8px;
+            padding: 40px;
+            width: 85%;
+            max-width: 1000px;
+            text-align: center;
+        }
+        #question-text {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            white-space: pre-line;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .option-btn {
+            background-color: #444444;
+            color: white;
+            border: 1px solid #666666;
+            border-radius: 5px;
+            padding: 25px;
+            font-size: 1.8em;
+            cursor: pointer;
+        }
+        .option-btn:hover {
+            background-color: #555555;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+        .correct {
+            background-color: #2e7d32 !important;
+            border-color: #2e7d32 !important;
+        }
+        .incorrect {
+            background-color: #c62828 !important;
+            border-color: #c62828 !important;
+        }
+        #feedback {
+            margin-top: 30px;
+            font-size: 1.8em;
+            height: 40px;
+        }
+        #next-btn {
+            margin-top: 30px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: none;
+        }
+        #next-btn:hover {
+            background-color: #1565c0;
+        }
+        #score-container {
+            display: none;
+            font-size: 2.5em;
+        }
+        .progress {
+            font-size: 1.5em;
+            color: #cccccc;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container">
+        <div class="progress" id="progress-text">Pregunta 1</div>
+        <div id="question-text">Cargando...</div>
+        
+        <div class="options-grid" id="options-container"></div>
+
+        <div id="feedback"></div>
+        <button id="next-btn" onclick="nextQuestion()">Siguiente</button>
+
+        <div id="score-container">
+            <h2>Resultados</h2>
+            <p>Puntuación: <span id="final-score"></span> / 35</p>
+            <button class="option-btn" style="margin-top: 20px;" onclick="location.reload()">Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Many people have _____ this mountain in the winter.", options: ["climbed", "climb", "climbing", "climbs"], answer: 0 },
+            { q: "Our team _____ many challenges this year.", options: ["has faced", "have face", "has face", "has facing"], answer: 0 },
+            { q: "I haven't finished my homework _____.", options: ["yet", "already", "just", "still"], answer: 0 },
+            { q: "The new rules must _____ followed by everyone.", options: ["be", "been", "was", "is"], answer: 0 },
+            { q: "The important letter _____ by the manager yesterday.", options: ["was written", "were wrote", "was writing", "were written"], answer: 0 },
+            { q: "The instructions for this test were quite _____.", options: ["confusing", "confused", "confuse", "confusions"], answer: 0 },
+            { q: "By the time we arrived, the show _____ already started.", options: ["had", "has", "have", "was"], answer: 0 },
+            { q: "She is a teacher. She _____ at this school for a decade.", options: ["has been", "is being", "had been", "was"], answer: 0 },
+            { q: "We _____ leave now if we want to catch the train.", options: ["have to", "might", "hasn't to", "wouldn't"], answer: 0 },
+            { q: "You _____ smoke inside the hospital.", options: ["must not", "don't have to", "are not able to", "shouldn't to"], answer: 0 },
+            { q: "I _____ find my keys this morning.", options: ["couldn't", "wouldn't", "shouldn't", "might not"], answer: 0 },
+            { q: "They bought a car _____ is very expensive.", options: ["which", "who", "whom", "whose"], answer: 0 },
+            { q: "_____ jacket is this?", options: ["Whose", "Who's", "Who", "Whom"], answer: 0 },
+            { q: "Are you interested in _____ a new language?", options: ["learning", "to learn", "learn", "learned"], answer: 0 },
+            { q: "The teacher wants us _____ harder.", options: ["to study", "study", "studying", "to studying"], answer: 0 },
+            { q: "_____ it was raining, we went for a walk.", options: ["Even though", "Because of", "So", "Unless"], answer: 0 },
+            { q: "He _____ to open the door.", options: ["told him", "say him", "told his", "tell him"], answer: 0 },
+            { q: "If she _____ driven slower, she wouldn't have crashed.", options: ["had", "has", "have", "did"], answer: 0 },
+            { q: "I would finish this project even if it _____ me all day.", options: ["took", "takes", "taken", "taking"], answer: 0 },
+            { q: "Sara: 'Where do you live?'\nSara asked me _____.", options: ["where I lived", "where do I live", "where did I live", "where I live"], answer: 0 },
+            { q: "The patient _____ before the doctor arrived.", options: ["had died", "has died", "die", "died"], answer: 0 },
+            { q: "You _____ talk to him if you are not feeling well.", options: ["should", "might to", "don't have", "wasn't able"], answer: 0 },
+            { q: "I was very _____ by the end of the movie.", options: ["surprised", "surprising", "surprise", "surprises"], answer: 0 },
+            { q: "The bridge _____ in 1995.", options: ["was built", "were built", "built", "has build"], answer: 0 },
+            { q: "I have _____ seen that movie.", options: ["already", "yet", "ever", "still"], answer: 0 },
+            { q: "The man _____ called yesterday is my uncle.", options: ["who", "which", "whom", "whose"], answer: 0 },
+            { q: "_____ did you go after the party?", options: ["Where", "When", "What", "Who"], answer: 0 },
+            { q: "If I _____ you, I would take the job.", options: ["were", "was", "am", "have been"], answer: 0 },
+            { q: "'I will call you,' he said.\nHe said that he _____ call me.", options: ["would", "will", "can", "might"], answer: 0 },
+            { q: "She asked me _____ the windows.", options: ["to close", "close", "closing", "closed"], answer: 0 },
+            { q: "He is good at _____ chess.", options: ["playing", "play", "to play", "played"], answer: 0 },
+            { q: "We stayed at home _____ the bad weather.", options: ["because of", "even though", "unless", "so"], answer: 0 },
+            { q: "_____ you play the piano when you were a child?", options: ["Could", "Can", "Should", "Might"], answer: 0 },
+            { q: "Have you _____ eaten sushi?", options: ["ever", "never", "still", "yet"], answer: 0 },
+            { q: "The documents should _____ signed immediately.", options: ["be", "been", "being", "to be"], answer: 0 }
+        ];
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function shuffleOptions(question) {
+            const options = [...question.options];
+            const correctAnswerText = options[question.answer];
+            
+            const shuffledOpts = shuffleArray(options);
+            const newAnswerIndex = shuffledOpts.indexOf(correctAnswerText);
+            
+            return {
+                q: question.q,
+                options: shuffledOpts,
+                answer: newAnswerIndex
+            };
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+
+        function initQuiz() {
+            // Se mezcla el orden de las preguntas antes de cargarlas
+            const randomizedQuestions = shuffleArray(questions);
+            shuffledQuestions = randomizedQuestions.map(q => shuffleOptions(q));
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = shuffledQuestions[currentQuestionIndex];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('next-btn').style.display = "none";
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = "";
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = shuffledQuestions[currentQuestionIndex];
+            const allButtons = document.querySelectorAll('.option-btn');
+            
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === q.answer) {
+                btnElement.classList.add('correct');
+                document.getElementById('feedback').innerText = "Correcto.";
+                document.getElementById('feedback').style.color = "#4caf50";
+                score++;
+            } else {
+                btnElement.classList.add('incorrect');
+                allButtons[q.answer].classList.add('correct');
+                document.getElementById('feedback').innerText = "Incorrecto.";
+                document.getElementById('feedback').style.color = "#c62828";
+            }
+
+            document.getElementById('next-btn').style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById('question-text').style.display = 'none';
+            document.getElementById('options-container').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('progress-text').style.display = 'none';
+            
+            document.getElementById('score-container').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
